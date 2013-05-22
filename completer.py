@@ -26,39 +26,39 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
-import completer,park,reader,readline,sys
+import readline,sys,re
 
-
-def start_mangareader():
-    comp = completer.Completer()
-    readline.set_completer_delims(' \t\n;')
-    readline.parse_and_bind("tab:complete")
-    readline.set_completer(comp.complete)
-    manga_location = raw_input("Enter the mangas location -> ")
-    manga_name     = raw_input("Enter the manga name -> ")
-    start_chapter  = raw_input("Enter the manga start chapter -> ")
-    end_chapter    = raw_input("Enter the manga end chapter -> ")
-    downloader = reader.mangareader_downloader(manga_name,start_chapter,end_chapter,manga_location)
-    downloader.run()
-
-def start_mangapark():
-    comp = completer.Completer()
-    readline.set_completer_delims(' \t\n;')
-    readline.parse_and_bind("tab:complete")
-    readline.set_completer(comp.complete)
-    print "[+] You have chosen mangapark instead of mangareader (default)"
-    manga_location = raw_input("Enter the mangas location -> ")
-    manga_name     = raw_input("Enter the manga name -> ")
-    start_chapter  = raw_input("Enter the manga start chapter -> ")
-    end_chapter    = raw_input("Enter the manga end chapter -> ")
-    downloader = park.mangapark_downloader(manga_name,start_chapter,end_chapter,manga_location)
-    downloader.run()
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        if "park" in sys.argv[1]:
-            start_mangapark()
-        else:
-            start_mangareader()
-    else:
-        start_mangareader()
+#---complete the path---#
+class Completer(object):
+    def _listdir(self, root):
+        res = []
+        for name in os.listdir(root):
+            path = os.path.join(root, name)
+            if os.path.isdir(path):
+                name += os.sep
+            res.append(name)
+        return res
+    def _complete_path(self, path=None):
+        if not path:
+            return self._listdir('.')
+        dirname, rest = os.path.split(path)
+        tmp = dirname if dirname else '.'
+        res = [os.path.join(dirname, p)
+                for p in self._listdir(tmp) if p.startswith(rest)]
+        if len(res) > 1 or not os.path.exists(path):
+            return res
+        if os.path.isdir(path):
+            return [os.path.join(path, p) for p in self._listdir(path)]
+        return [path + '']
+    def complete_extra(self, args):
+        return self._complete_path(args[-1])
+    def complete(self, text, state):
+        buffer = readline.get_line_buffer()
+        line = readline.get_line_buffer().split()
+        cmd = line[0].strip()
+        impl = getattr(self, 'complete_%s' % "extra")
+        args = line[0:]
+        if args:
+            return (impl(args) + [None])[state]
+        return [cmd + ''][state]
+        return results[state]

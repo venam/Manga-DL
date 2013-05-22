@@ -49,3 +49,18 @@ Run mangaDL.py. <br>
 Enter the configs. <br>
 The manga name should be the same as in the url (ex:fairy-tail). <br>
 That's it! <br>
+
+How to use:
+-----------
+
+If you want to download from mangareader: <br>
+ <br>
+start the program without arguments. <br>
+Enter the location of all your mangas. <br>
+Enter the manga name as it appears in the url. <br>
+Enter the first and last chapter. <br>
+ <br>
+If you want to download from mangapark:  <br>
+ <br>
+start the program with park as the argument.  <br>
+Enter the same thing as above.
