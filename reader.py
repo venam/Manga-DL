@@ -116,4 +116,4 @@ class mangareader_downloader(object):
     def run(self):
         while self.flag == False:
             self.start_downloading()
-        print "[*] Finished all the downloads\nEnjoy You Reading!"
+        print "[*] Finished all the downloads\nEnjoy Your Reading!"

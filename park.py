@@ -105,4 +105,4 @@ class mangapark_downloader(object):
         self.open_first_page()
         self.scrap_page()
         self.start_downloading()
-        print "[*] Finished all the downloads\nEnjoy You Reading!"
+        print "[*] Finished all the downloads\nEnjoy Your Reading!"
