@@ -39,7 +39,7 @@ class mangareader_downloader(object):
         self.img            = ""
         self.next_link      = ""
         self.current_page   = "http://www.mangareader.net/"+self.manga_name+"/"+self.chapter+"/"
-        self.next_regex     = "<span class=\"next\"><a href=\"(.*)\">Next</a></span>"
+        self.next_regex     = "<span class=\"next\"><a href=\"([^\"]*)\">Next</a></span>"
         self.br             = mechanize.Browser()
 
     def increase_current(self):
@@ -74,8 +74,10 @@ class mangareader_downloader(object):
 
     def scrap_page(self):
         self.next_link = re.findall(self.next_regex ,self.br.response().read())[0]
-        self.img       = re.findall("<a href=\""+self.next_link+"\"><img id=\"img\" (.*)\" name=\"img\" />",self.br.response().read())[0]
-        self.img       = re.findall("src=\"(.*)\" alt",self.img)[0]
+        for a in self.br.response().readlines():
+			if '"><img id=\"img\"' in a:
+				self.img       = re.findall("src=\"([^\"]*)\" alt",a)[0]
+				break
         self.next_link = "http://www.mangareader.net"+self.next_link
 
     def manage_chapters(self):
@@ -91,9 +93,9 @@ class mangareader_downloader(object):
 
     def download_image(self):
         image_response = self.br.open_novisit(self.img)
-        image = image_response.read()
+        image          = image_response.read()
         self.manage_chapters()
-        writing = open(self.current_image+'.jpg', 'wb')
+        writing        = open(self.current_image+'.jpg', 'wb')
         writing.write(image)
         writing.close()
         print "[*] Image saved to "+ os.getcwd() + "/"+self.current_image+".jpg"

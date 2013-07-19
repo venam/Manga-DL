@@ -28,6 +28,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 import completer,park,reader,readline,sys,os
 
+__version__    = "0.3"
+__author__     = "venam"
+__maintainer__ = "venam"
+__email__      = "patrick at unixhub.net"
+__status__     = "working but needs updates"
+
 class main(object):
 	def __init__(self):
 		self.conf = {
@@ -51,7 +57,7 @@ class main(object):
 		if which == "park":
 			print "[+] You have chosen mangapark instead of mangareader (default)"
 		self.take_conf()
-		if which == park:
+		if which == "park":
 			downloader = park.mangapark_downloader(
 				self.conf['manga_name'],
 				self.conf['start_chapter'],
@@ -71,9 +77,10 @@ class main(object):
 			if "park" in sys.argv[0]:
 				self.start("park")
 			else:
-				print "bah"
 				#if len(sys.argv) != 4 :
 				#	self.print_help()
+				print "bah"
+
 		else:
 			self.start("")
 
