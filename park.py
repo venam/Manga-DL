@@ -1,16 +1,17 @@
 import mechanize, re, sys, os, time
 
 class mangapark_downloader(object):
-	def __init__(self,manga_name,chapter,end_chapter,manga_location):
+	def __init__(self,manga_name,chapter,end_chapter,manga_location,dl_manager):
 		self.manga_location = manga_location
-		self.manga_name	 = manga_name
+		self.manga_name	    = manga_name
 		self.chapter		= chapter
 		self.end_chapter	= end_chapter
 		self.current_image  = "000"
 		self.img			= ""
-		self.imgs		   = []
-		self.chapters	   = []
-		self.br			 = mechanize.Browser()
+		self.imgs		    = []
+		self.chapters	    = []
+		self.br			    = mechanize.Browser()
+		self.dl_manager     = dl_manager
 
 	def increase_current(self):
 		self.current_image = str(int(self.current_image)+1)
@@ -66,12 +67,15 @@ class mangapark_downloader(object):
 
 
 	def download_image(self):
-		image_response = self.br.open_novisit(self.img)
-		image = image_response.read()
 		self.manage_chapters()
-		writing = open(self.current_image+'.jpg', 'wb')
-		writing.write(image)
-		writing.close()
+		if self.dl_manager == 'default':
+			image_response = self.br.open_novisit(self.img)
+			image = image_response.read()
+			writing = open(self.current_image+'.jpg', 'wb')
+			writing.write(image)
+			writing.close()
+		else:
+			os.system(self.dl_manager +self.img+ " -o "+self.current_image+".jpg")
 		print "[*] Image saved to "+ os.getcwd() + "/"+self.current_image+".jpg"
 
 	def open_new_chapter(self,chapt):

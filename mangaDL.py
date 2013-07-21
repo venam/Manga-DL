@@ -53,36 +53,49 @@ class main(object):
 		self.conf['start_chapter']  = raw_input("Enter the manga start chapter -> ")
 		self.conf['end_chapter']    = raw_input("Enter the manga end chapter   -> ")
 
-	def start(self,which):
+	def start(self,which,take_conf):
 		if which == "park":
 			print "[+] You have chosen mangapark instead of mangareader (default)"
-		self.take_conf()
+		if take_conf:
+			self.take_conf()
 		if which == "park":
 			downloader = park.mangapark_downloader(
 				self.conf['manga_name'],
 				self.conf['start_chapter'],
 				self.conf['end_chapter'],
-				self.conf['manga_location'])
+				self.conf['manga_location'],
+				"axel -aS -q ")
 		else:
 			downloader = reader.mangareader_downloader(
 				self.conf['manga_name'],
 				self.conf['start_chapter'],
 				self.conf['end_chapter'],
-				self.conf['manga_location'])
+				self.conf['manga_location'],
+				"default")
 		downloader.run()
+
+	def fill_in(self,which):
+		self.conf['manga_location'] = sys.argv[0]
+		self.conf['manga_name']     = sys.argv[1]
+		self.conf['start_chapter']  = sys.argv[2]
+		self.conf['end_chapter']    = sys.argv[3]
+		self.start(which,False)
 
 	def procedure(self):
 		if len(sys.argv) > 1:
 			sys.argv.remove(sys.argv[0])
-			if "park" in sys.argv[0]:
-				self.start("park")
+			if "-park" == sys.argv[0]:
+				if len(sys.argv) == 1:
+					self.start("park",True)
+				elif len(sys.argv) == 5:
+					sys.argv.remove(sys.argv[0])
+					self.fill_in("park")
+			elif len(sys.argv) == 4:
+				self.fill_in("")
 			else:
-				#if len(sys.argv) != 4 :
-				#	self.print_help()
-				print "bah"
-
+				print "\nUsage: \nstart the script with 4 args: location manga_name start end\nor if you want to use mangapark add the '-park' before the location\nOr directly call the script without args\n"
 		else:
-			self.start("")
+			self.start("",True)
 
 if __name__ == "__main__":
 	main().procedure()

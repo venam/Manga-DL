@@ -7,13 +7,13 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-    1.  The author is informed of the use of his/her code. The author does not have to consent to the use; however he/she must be informed.
-    2.  If the author wishes to know when his/her code is being used, it the duty of the author to provide a current email address at the top of his/her code, above or included in the copyright statement.
-    3.  The author can opt out of being contacted, by not providing a form of contact in the copyright statement.
-    4.  If any portion of the author's code is used, credit must be given.
-            a. For example, if the author's code is being modified and/or redistributed in the form of a closed-source binary program, then the end user must still be made somehow aware that the author's work has contributed to that program.
-            b. If the code is being modified and/or redistributed in the form of code to be compiled, then the author's name in the copyright statement is sufficient.
-    5.  The following copyright statement must be included at the beginning of the code, regardless of binary form or source code form.
+	1.  The author is informed of the use of his/her code. The author does not have to consent to the use; however he/she must be informed.
+	2.  If the author wishes to know when his/her code is being used, it the duty of the author to provide a current email address at the top of his/her code, above or included in the copyright statement.
+	3.  The author can opt out of being contacted, by not providing a form of contact in the copyright statement.
+	4.  If any portion of the author's code is used, credit must be given.
+			a. For example, if the author's code is being modified and/or redistributed in the form of a closed-source binary program, then the end user must still be made somehow aware that the author's work has contributed to that program.
+			b. If the code is being modified and/or redistributed in the form of code to be compiled, then the author's name in the copyright statement is sufficient.
+	5.  The following copyright statement must be included at the beginning of the code, regardless of binary form or source code form.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -29,93 +29,97 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import re, mechanize, os,time
 
 class mangareader_downloader(object):
-    def __init__(self,manga_name,chapter,end_chapter,manga_location):
-        self.manga_location = manga_location
-        self.manga_name     = manga_name
-        self.chapter        = chapter
-        self.end_chapter    = end_chapter
-        self.flag           = False
-        self.current_image  = "000"
-        self.img            = ""
-        self.next_link      = ""
-        self.current_page   = "http://www.mangareader.net/"+self.manga_name+"/"+self.chapter+"/"
-        self.next_regex     = "<span class=\"next\"><a href=\"([^\"]*)\">Next</a></span>"
-        self.br             = mechanize.Browser()
+	def __init__(self,manga_name,chapter,end_chapter,manga_location,dl_manager):
+		self.manga_location = manga_location
+		self.manga_name	 = manga_name
+		self.chapter		= chapter
+		self.end_chapter	= end_chapter
+		self.flag		   = False
+		self.current_image  = "000"
+		self.img			= ""
+		self.next_link	  = ""
+		self.current_page   = "http://www.mangareader.net/"+self.manga_name+"/"+self.chapter+"/"
+		self.next_regex	 = "<span class=\"next\"><a href=\"([^\"]*)\">Next</a></span>"
+		self.br			 = mechanize.Browser()
+		self.dl_manager	 = dl_manager
 
-    def increase_current(self):
-        self.current_image = str(int(self.current_image)+1)
-        if len(self.current_image) == 1:
-            self.current_image = "00"+self.current_image
-        elif len(self.current_image) == 2:
-            self.current_image = "0"+self.current_image
+	def increase_current(self):
+		self.current_image = str(int(self.current_image)+1)
+		if len(self.current_image) == 1:
+			self.current_image = "00"+self.current_image
+		elif len(self.current_image) == 2:
+			self.current_image = "0"+self.current_image
 
-    def increase_chapter(self):
-        self.chapter = str(int(self.chapter)+1)
+	def increase_chapter(self):
+		self.chapter = str(int(self.chapter)+1)
 
-    def check_chapter_end(self):
-        if self.next_link.split(self.manga_name)[1].split('/')[1] == self.current_page.split(self.manga_name)[1].split('/')[1]:
-            return False
-        elif "chapter-"+self.current_page.split(self.manga_name)[1].split('/')[1]+".html" == self.next_link.split(self.manga_name)[1].split('/')[1]:
-            return False
-        return True
+	def check_chapter_end(self):
+		if self.next_link.split(self.manga_name)[1].split('/')[1] == self.current_page.split(self.manga_name)[1].split('/')[1]:
+			return False
+		elif "chapter-"+self.current_page.split(self.manga_name)[1].split('/')[1]+".html" == self.next_link.split(self.manga_name)[1].split('/')[1]:
+			return False
+		return True
 
-    def not_published(self):
-        if "is not published yet. Once" in self.br.response().read() or self.chapter == str(int(self.end_chapter)+1):
-            return True
-        return False
+	def not_published(self):
+		if "is not published yet. Once" in self.br.response().read() or self.chapter == str(int(self.end_chapter)+1):
+			return True
+		return False
 
-    def go_to_next_page(self):
-        if not self.check_chapter_end():
-            self.increase_current()
-        else:
-            self.increase_chapter()
-            self.current_image = "000"
-        self.current_page = self.next_link
+	def go_to_next_page(self):
+		if not self.check_chapter_end():
+			self.increase_current()
+		else:
+			self.increase_chapter()
+			self.current_image = "000"
+		self.current_page = self.next_link
 
-    def scrap_page(self):
-        self.next_link = re.findall(self.next_regex ,self.br.response().read())[0]
-        for a in self.br.response().readlines():
+	def scrap_page(self):
+		self.next_link = re.findall(self.next_regex ,self.br.response().read())[0]
+		for a in self.br.response().readlines():
 			if '"><img id=\"img\"' in a:
-				self.img       = re.findall("src=\"([^\"]*)\" alt",a)[0]
+				self.img	   = re.findall("src=\"([^\"]*)\" alt",a)[0]
 				break
-        self.next_link = "http://www.mangareader.net"+self.next_link
+		self.next_link = "http://www.mangareader.net"+self.next_link
 
-    def manage_chapters(self):
-        if not os.path.exists(self.manga_location):
-            os.mkdir(self.manga_location)
-        os.chdir(self.manga_location)
-        if not os.path.exists(self.manga_name):
-            os.mkdir(self.manga_name)
-        os.chdir(self.manga_name)
-        if not os.path.exists(self.manga_name+"-"+self.chapter):
-            os.mkdir(self.manga_name+"-"+self.chapter)
-        os.chdir(self.manga_name+"-"+self.chapter)
+	def manage_chapters(self):
+		if not os.path.exists(self.manga_location):
+			os.mkdir(self.manga_location)
+		os.chdir(self.manga_location)
+		if not os.path.exists(self.manga_name):
+			os.mkdir(self.manga_name)
+		os.chdir(self.manga_name)
+		if not os.path.exists(self.manga_name+"-"+self.chapter):
+			os.mkdir(self.manga_name+"-"+self.chapter)
+		os.chdir(self.manga_name+"-"+self.chapter)
 
-    def download_image(self):
-        image_response = self.br.open_novisit(self.img)
-        image          = image_response.read()
-        self.manage_chapters()
-        writing        = open(self.current_image+'.jpg', 'wb')
-        writing.write(image)
-        writing.close()
-        print "[*] Image saved to "+ os.getcwd() + "/"+self.current_image+".jpg"
+	def download_image(self):
+		self.manage_chapters()
+		if self.dl_manager == 'default':
+			image_response = self.br.open_novisit(self.img)
+			image		  = image_response.read()
+			writing		= open(self.current_image+'.jpg', 'wb')
+			writing.write(image)
+			writing.close()
+		else:
+			os.system(self.dl_manager +" "+self.img+ " -o "+self.current_image+".jpg")
+		print "[*] Image saved to "+ os.getcwd() + "/"+self.current_image+".jpg"
 
-    def start_downloading(self):
-        try:
-            self.br.open(self.current_page)
-            if not self.not_published():
-                self.scrap_page()
-                self.manage_chapters()
-                self.download_image()
-                self.go_to_next_page()
-            else :
-                self.flag = True
-        except Exception,e:
-            print e
-            time.sleep(2)
-            self.start_downloading()
+	def start_downloading(self):
+		try:
+			self.br.open(self.current_page)
+			if not self.not_published():
+				self.scrap_page()
+				self.manage_chapters()
+				self.download_image()
+				self.go_to_next_page()
+			else :
+				self.flag = True
+		except Exception,e:
+			print e
+			time.sleep(2)
+			self.start_downloading()
 
-    def run(self):
-        while self.flag == False:
-            self.start_downloading()
-        print "[*] Finished all the downloads\nEnjoy Your Reading!"
+	def run(self):
+		while self.flag == False:
+			self.start_downloading()
+		print "[*] Finished all the downloads\nEnjoy Your Reading!"
