@@ -64,14 +64,15 @@ class main(object):
 				self.conf['start_chapter'],
 				self.conf['end_chapter'],
 				self.conf['manga_location'],
-				"axel -aS -q ")
+				"default")
+
 		else:
 			downloader = reader.mangareader_downloader(
 				self.conf['manga_name'],
 				self.conf['start_chapter'],
 				self.conf['end_chapter'],
 				self.conf['manga_location'],
-				"default")
+				"aria2c --max-tries=0 --max-file-not-found=20 --lowest-speed-limit=0 --min-split-size=80K --allow-overwrite -s 10 --connect-timeout=60 --enable-http-pipelining -q ")
 		downloader.run()
 
 	def fill_in(self,which):

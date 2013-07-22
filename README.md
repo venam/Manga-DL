@@ -44,7 +44,6 @@ Install
 -------
 
 Get python2. <br>
-Get the mechanize module. <br>
 Run mangaDL.py. <br>
 Enter the configs. <br>
 The manga name should be the same as in the url (ex:fairy-tail). <br>
@@ -63,4 +62,7 @@ Enter the first and last chapter. <br>
 If you want to download from mangapark:  <br>
  <br>
 start the program with park as the argument.  <br>
-Enter the same thing as above.
+Enter the same thing as above. <br>
+You can check the files to change the downloader to an external download manager. <br>
+The script can take command line args. <br>
+
