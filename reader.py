@@ -43,6 +43,10 @@ class mangareader_downloader(object):
 		self.next_link	    = ""
 		self.current_page   = "http://www.mangareader.net/"+self.manga_name+"/"+self.chapter+"/"
 		self.next_regex	    = "<span class=\"next\"><a href=\"([^\"]*)\">Next</a></span>"
+
+		self.nb_of_pages    = 0
+		self.page_counter   = 2
+
 		self.br             = URLopener()
 		self.response       = ""
 		self.response_lines = ""
@@ -105,16 +109,21 @@ class mangareader_downloader(object):
 			self.current_image = "00"+self.current_image
 		elif len(self.current_image) == 2:
 			self.current_image = "0"+self.current_image
+		self.page_counter+=1
 
 	def increase_chapter(self):
-		self.chapter = str(int(self.chapter)+1)
+		self.nb_of_pages   = 0
+		self.page_counter  = 1
+		self.chapter       = str(int(self.chapter)+1)
+		self.current_image = "000"
+		self.next_link     = "http://www.mangareader.net/"+self.manga_name+"/"+self.chapter+"/"+str(self.page_counter)
+		self.page_counter +=1
 
 	def check_chapter_end(self):
-		if self.next_link.split(self.manga_name)[1].split('/')[1] == self.current_page.split(self.manga_name)[1].split('/')[1]:
+		if self.page_counter-1 == self.nb_of_pages:
+			return True
+		else :
 			return False
-		elif "chapter-"+self.current_page.split(self.manga_name)[1].split('/')[1]+".html" == self.next_link.split(self.manga_name)[1].split('/')[1]:
-			return False
-		return True
 
 	def not_published(self):
 		if "is not published yet. Once" in self.response or self.chapter == str(int(self.end_chapter)+1):
@@ -126,16 +135,19 @@ class mangareader_downloader(object):
 			self.increase_current()
 		else:
 			self.increase_chapter()
-			self.current_image = "000"
 		self.current_page = self.next_link
 
 	def scrap_page(self):
-		self.next_link = re.findall(self.next_regex ,self.response )[0]
+		if self.nb_of_pages == 0:
+			for a in self.response_lines:
+				if "</select> of " in a:
+					self.nb_of_pages = int(re.findall("</select> of (\d+)",a)[0])
+					break
 		for a in self.response_lines:
 			if '"><img id=\"img\"' in a:
 				self.img	   = re.findall("src=\"([^\"]*)\" alt",a)[0]
 				break
-		self.next_link = "http://www.mangareader.net"+self.next_link
+		self.next_link = "http://www.mangareader.net/"+self.manga_name+"/"+self.chapter+"/"+str(self.page_counter)
 
 	def manage_chapters(self):
 		if not os.path.exists(self.manga_location):
