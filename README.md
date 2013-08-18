@@ -66,3 +66,9 @@ Enter the same thing as above. <br>
 You can check the files to change the downloader to an external download manager. <br>
 The script can take command line args. <br>
 
+Future Work:
+-----------
+I am currently rewriting mangaDL in c++ with a gtk frontend.
+I'll try to implement a manga updater inside of it.
+If you have features you want to add to it you can join me on the contact information present on my website.
+

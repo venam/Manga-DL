@@ -72,7 +72,7 @@ class main(object):
 				self.conf['start_chapter'],
 				self.conf['end_chapter'],
 				self.conf['manga_location'],
-				"aria2c --max-tries=0 --max-file-not-found=20 --lowest-speed-limit=0 --min-split-size=80K --allow-overwrite -s 10 --connect-timeout=60 --enable-http-pipelining -q ")
+				"aria2c --max-tries=0 --max-file-not-found=20 --lowest-speed-limit=0 --allow-overwrite --connect-timeout=60 -q ")
 		downloader.run()
 
 	def fill_in(self,which):
